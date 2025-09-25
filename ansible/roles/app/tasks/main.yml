@@ -14,7 +14,7 @@
 - name: Install Node.js 22
   shell: |
     curl -fsSL {{ node_setup_url }} | bash -
-    apt-get install -y nodejs
+    apt install -y nodejs
   args:
     executable: /bin/bash
 

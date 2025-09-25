@@ -1,6 +1,7 @@
 ---
 - name: Deploy React App (Dev)
   hosts: dev
+  gather_facts: yes
   vars_files:
     - ../roles/app/vars/main.yml
 

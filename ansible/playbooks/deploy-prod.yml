@@ -2,6 +2,7 @@
 - name: Deploy React App (Prod)
   hosts: prod
   become: yes
+  gather_facts: yes
   vars_files:
     - ../roles/app/vars/main.yml
 
