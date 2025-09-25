@@ -29,7 +29,6 @@ jobs:
           echo "${{ secrets.SSH_KEY_DEV }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa <<< "${{ secrets.SSH_KEY_PASSPHRASE }}"
           ssh-keyscan -p 2222 93.19.66.4 >> ~/.ssh/known_hosts
 
       - name: Debug SSH connection (Dev)
@@ -44,7 +43,6 @@ jobs:
           echo "${{ secrets.SSH_KEY_PROD }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa <<< "${{ secrets.SSH_KEY_PASSPHRASE }}"
           ssh-keyscan -p 2222 93.19.66.4 >> ~/.ssh/known_hosts
 
       - name: Create Ansible Vault password file
