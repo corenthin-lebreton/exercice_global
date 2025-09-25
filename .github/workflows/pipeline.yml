@@ -52,7 +52,7 @@ jobs:
 
       - name: Deploy to Dev
         if: github.ref == 'refs/heads/dev'
-        run: ansible-playbook -i ansible/inventory/dev.ini ansible/playbooks/deploy-dev.yml --vault-password-file ~/.ssh/vault_pass.txt -vvv
+        run: ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook -i ansible/inventory/dev.ini ansible/playbooks/deploy-dev.yml --vault-password-file ~/.ssh/vault_pass.txt -vvv
 
       - name: Deploy to Prod
         if: github.ref == 'refs/heads/master'
