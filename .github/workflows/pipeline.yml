@@ -1,0 +1,54 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - master
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install npm dependencies
+        working-directory: ./app
+        run: npm install
+
+      - name: Run lint
+        working-directory: ./app
+        run: npm run lint
+
+      - name: Setup SSH key (Dev)
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY_DEV }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Setup SSH key (Prod)
+        if: github.ref == 'refs/heads/master'
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY_PROD }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Create Ansible Vault password file
+        run: |
+          echo "${{ secrets.ANSIBLE_VAULT }}" > ~/.ssh/vault_pass.txt
+          chmod 600 ~/.ssh/vault_pass.txt
+
+      - name: Deploy to Dev
+        if: github.ref == 'refs/heads/dev'
+        run: ansible-playbook -i ansible/inventory/dev.ini ansible/playbooks/deploy-dev.yml --private-key ~/.ssh/id_rsa --vault-password-file ~/.ssh/vault_pass.txt
+
+      - name: Deploy to Prod
+        if: github.ref == 'refs/heads/master'
+        run: ansible-playbook -i ansible/inventory/prod.ini ansible/playbooks/deploy-prod.yml --private-key ~/.ssh/id_rsa --vault-password-file ~/.ssh/vault_pass.txt
+
+      - name: Cleanup secrets
+        if: always()
+        run: rm -f ~/.ssh/id_rsa ~/.ssh/vault_pass.txt

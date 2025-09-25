@@ -24,10 +24,6 @@
     dest: "{{ app_dir }}"
     version: master
 
-- name: Install npm dependencies
-  command: npm ci
-  args:
-    chdir: "{{ app_dir }}/app"
 
 - name: Build React app
   command: npm run build
