@@ -30,11 +30,12 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa <<< "${{ secrets.SSH_KEY_PASSPHRASE }}"
+          ssh-keyscan -p 2222 93.19.66.4 >> ~/.ssh/known_hosts
 
-
-      - name: Debug SSH connection
+      - name: Debug SSH connection (Dev)
         if: github.ref == 'refs/heads/dev'
-        run: ssh -vvv -p 2222 root@93.19.66.4 "echo Connected!"
+        run: ssh -p 2222 root@93.19.66.4 "echo Connected!"
+
 
       - name: Setup SSH key (Prod)
         if: github.ref == 'refs/heads/master'
@@ -44,6 +45,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa <<< "${{ secrets.SSH_KEY_PASSPHRASE }}"
+          ssh-keyscan -p 2222 93.19.66.4 >> ~/.ssh/known_hosts
 
       - name: Create Ansible Vault password file
         run: |
@@ -52,11 +54,13 @@ jobs:
 
       - name: Deploy to Dev
         if: github.ref == 'refs/heads/dev'
-        run: ansible-playbook -i ansible/inventory/dev.ini ansible/playbooks/deploy-dev.yml --vault-password-file ~/.ssh/vault_pass.txt
+        run: ansible-playbook -i ansible/inventory/dev.ini ansible/playbooks/deploy-dev.yml \
+              --vault-password-file ~/.ssh/vault_pass.txt
 
       - name: Deploy to Prod
         if: github.ref == 'refs/heads/master'
-        run: ansible-playbook -i ansible/inventory/prod.ini ansible/playbooks/deploy-prod.yml --vault-password-file ~/.ssh/vault_pass.txt
+        run: ansible-playbook -i ansible/inventory/prod.ini ansible/playbooks/deploy-prod.yml \
+              --vault-password-file ~/.ssh/vault_pass.txt
 
       - name: Cleanup secrets
         if: always()
