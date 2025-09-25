@@ -47,13 +47,11 @@ jobs:
 
       - name: Deploy to Dev
         if: github.ref == 'refs/heads/dev'
-        run: ansible-playbook -i ansible/inventory/dev.ini ansible/playbooks/deploy-dev.yml \
-              --vault-password-file ~/.ssh/vault_pass.txt
+        run: ansible-playbook -i ansible/inventory/dev.ini ansible/playbooks/deploy-dev.yml --vault-password-file ~/.ssh/vault_pass.txt
 
       - name: Deploy to Prod
         if: github.ref == 'refs/heads/master'
-        run: ansible-playbook -i ansible/inventory/prod.ini ansible/playbooks/deploy-prod.yml \
-              --vault-password-file ~/.ssh/vault_pass.txt
+        run: ansible-playbook -i ansible/inventory/prod.ini ansible/playbooks/deploy-prod.yml --vault-password-file ~/.ssh/vault_pass.txt
 
       - name: Cleanup secrets
         if: always()
