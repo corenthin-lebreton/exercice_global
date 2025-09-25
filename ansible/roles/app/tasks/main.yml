@@ -1,0 +1,54 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install dependencies
+  apt:
+    name:
+      - git
+      - curl
+      - apache2
+    state: present
+
+- name: Install Node.js 22
+  shell: |
+    curl -fsSL {{ node_setup_url }} | bash -
+    apt-get install -y nodejs
+  args:
+    executable: /bin/bash
+
+- name: Clone repository
+  git:
+    repo: "{{ repo_url }}"
+    dest: "{{ app_dir }}"
+    version: master
+
+- name: Install npm dependencies
+  command: npm ci
+  args:
+    chdir: "{{ app_dir }}/app"
+
+- name: Build React app
+  command: npm run build
+  args:
+    chdir: "{{ app_dir }}/app"
+
+- name: Deploy build to apache2 web root
+  copy:
+    src: "{{ app_dir }}/app/dist/"
+    dest: "{{ web_root }}/"
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  notify: restart apache2
+
+- name: Create deployment log
+  copy:
+    content: "Deployment successful on {{ inventory_hostname }} at {{ ansible_date_time.iso8601 }}"
+    dest: "{{ log_file }}"
+
+- name: Remove cloned repository
+  file:
+    path: "{{ app_dir }}"
+    state: absent
