@@ -31,6 +31,11 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa <<< "${{ secrets.SSH_KEY_PASSPHRASE }}"
 
+
+      - name: Debug SSH connection
+        if: github.ref == 'refs/heads/dev'
+        run: ssh -vvv -p 2222 root@93.19.66.4 "echo Connected!"
+
       - name: Setup SSH key (Prod)
         if: github.ref == 'refs/heads/master'
         run: |
