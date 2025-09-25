@@ -32,7 +32,7 @@
 
 - name: Deploy build to apache2 web root
   copy:
-    src: "{{ app_dir }}/app/dist/"
+    src: "{{ app_dir }}/app/build/"
     dest: "{{ web_root }}/"
     owner: www-data
     group: www-data
